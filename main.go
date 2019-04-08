@@ -4,6 +4,6 @@ package main
 
 func main() {
 	a := App{}
-	a.Initialize("root", "", "tv")
-	a.Run(":8085")
+	a.Initialize("root", "", "tv") //логин, пароль, навание БД в MYSQL
+	a.Run(":8080")                 //порт для запуска веб сервера
 }
