@@ -31,7 +31,6 @@ func (a *App) Initialize(user, password, dbname string) {
 	a.initializeRoutes()
 }
 
-// Run starts the app and serves on the specified addr
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
@@ -47,6 +46,7 @@ func (a *App) initializeRoutes() {
 }
 
 func (a *App) GetAllTv(w http.ResponseWriter, r *http.Request) {
+	log.Println("Пришел GET запрос — показать список всех телевизоров")
 	tvs, err := getAllTv(a.DB)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -57,6 +57,7 @@ func (a *App) GetAllTv(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) CreateTv(w http.ResponseWriter, r *http.Request) {
+	log.Println("Пришел POST запрос — добавить телевизор ")
 	var tv tv
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&tv); err != nil {
@@ -87,8 +88,10 @@ func (a *App) CreateTv(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) GetTv(w http.ResponseWriter, r *http.Request) {
+	log.Print("Пришел GET запрос — показать телевизор ")
 	vars := mux.Vars(r)
 	err := TvIdChecker(vars["id"])
+	log.Println("ID: ", fmt.Sprint(vars["id"]))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "ID должен быть больше нуля и быть числом")
 		return
@@ -115,8 +118,10 @@ func (a *App) GetTv(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) EditTv(w http.ResponseWriter, r *http.Request) {
+	log.Print("Пришел PUT запрос — отредактировать  телевизор ")
 	vars := mux.Vars(r)
 	err := TvIdChecker(vars["id"])
+	log.Println("ID: ", fmt.Sprint(vars["id"]))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "ID должен быть больше нуля и быть числом")
 		return
@@ -153,8 +158,10 @@ func (a *App) EditTv(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) DeleteTv(w http.ResponseWriter, r *http.Request) {
+	log.Print("Пришел DELETE запрос — удалить  телевизор ")
 	vars := mux.Vars(r)
 	err := TvIdChecker(vars["id"])
+	log.Println("ID: ", fmt.Sprint(vars["id"]))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "ID должен быть больше нуля и быть числом")
 		return
@@ -203,6 +210,7 @@ func TvIdChecker(input_id string) error {
 
 }
 
+//функция для проверки введеных данных по ТВ (кроме ID)
 func TvChecker(tv tv) error {
 	if len(tv.Manufacturer) < 3 {
 		return fmt.Errorf("В поле Manufacturer должно быть 3 и более символов")
