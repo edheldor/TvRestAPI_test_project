@@ -30,14 +30,13 @@ func (tv *tv) deleteTv(db *sql.DB) error {
 }
 
 func (tv *tv) createTv(db *sql.DB) error {
-	err := db.QueryRow(
+	_, err := db.Query(
 		"INSERT INTO tv(brand, manufacturer, model, year) VALUES(?, ?, ?, ?)",
-		tv.Brand, tv.Manufacturer, tv.Model, tv.Year).Scan()
+		tv.Brand, tv.Manufacturer, tv.Model, tv.Year)
 
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 

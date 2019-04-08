@@ -71,7 +71,7 @@ func (a *App) CreateTv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, tv)
+	respondWithJSON(w, http.StatusCreated, "Тв добавлен")
 }
 
 func (a *App) GetTv(w http.ResponseWriter, r *http.Request) {
@@ -148,4 +148,20 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(response)
+}
+
+//функция для проверки введеннго ID телевизора
+func TvIdChecker(input_id string) error {
+
+	id, err := strconv.ParseInt(input_id, 10, 64)
+	if err == nil {
+		if id < 0 {
+			return fmt.Errorf("ID должен быть больше нуля")
+		} else {
+			return nil
+		}
+	} else {
+		return err
+	}
+
 }

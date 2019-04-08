@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS tv
+(
+    id integer,
+    brand TEXT,
+    manufacturer TEXT NOT NULL,
+    model TEXT NOT NULL,
+    year DATE NOT NULL,
+    CONSTRAINT tv_pkey PRIMARY KEY (id)
+)`
+
+
+CREATE TABLE IF NOT EXISTS tv (
+  id INT(64) NOT NULL AUTO_INCREMENT,
+  brand TEXT DEFAULT NULL,
+  manufacturer TEXT NOT NULL,
+  model TEXT NOT NULL,
+  year year NOT NULL,
+  PRIMARY KEY (id)
+)
+ENGINE = INNODB,
+CHARACTER SET utf8,
+COLLATE utf8_general_ci;
