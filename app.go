@@ -63,7 +63,20 @@ func (a *App) CreateTv(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Неправильный формать JSON")
 		return
 	}
+
+	err := TvIdChecker(strconv.Itoa(tv.Id))
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "ID должен быть больше нуля и быть числом")
+		return
+	}
+
 	defer r.Body.Close()
+
+	err = TvChecker(tv)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, fmt.Sprint(err))
+		return
+	}
 
 	if err := tv.createTv(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -122,6 +135,13 @@ func (a *App) EditTv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+
+	err = TvChecker(tv)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, fmt.Sprint(err))
+		return
+	}
+
 	tv.Id = id
 
 	if err := tv.updateTv(a.DB); err != nil {
@@ -189,7 +209,7 @@ func TvChecker(tv tv) error {
 	}
 
 	if len(tv.Model) < 2 {
-		return fmt.Errorf("В поле Manufacturer должно быть 2 и более символов")
+		return fmt.Errorf("В поле Model должно быть 2 и более символов")
 	}
 
 	if tv.Year < 2010 {
