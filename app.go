@@ -20,7 +20,6 @@ type App struct {
 
 func (a *App) Initialize(user, password, dbname string) {
 	connectionString := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
-	//fmt.Sprintf("user=%s password=%s dbname=%s", user, password, dbname)
 
 	var err error
 	a.DB, err = sql.Open("mysql", connectionString)
@@ -61,7 +60,7 @@ func (a *App) CreateTv(w http.ResponseWriter, r *http.Request) {
 	var tv tv
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&tv); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, "Неправильный формать JSON")
 		return
 	}
 	defer r.Body.Close()
@@ -76,9 +75,15 @@ func (a *App) CreateTv(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) GetTv(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	err := TvIdChecker(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "ID должен быть больше нуля и быть числом")
+		return
+	}
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		respondWithError(w, http.StatusBadRequest, "Неправильный  ID")
 		return
 	}
 
@@ -86,7 +91,7 @@ func (a *App) GetTv(w http.ResponseWriter, r *http.Request) {
 	if err := tv.getTV(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			respondWithError(w, http.StatusNotFound, "Tv not found")
+			respondWithError(w, http.StatusNotFound, "TV с таким ID не найден")
 		default:
 			respondWithError(w, http.StatusInternalServerError, err.Error())
 		}
@@ -98,16 +103,22 @@ func (a *App) GetTv(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) EditTv(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	err := TvIdChecker(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "ID должен быть больше нуля и быть числом")
+		return
+	}
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		respondWithError(w, http.StatusBadRequest, "Неправильный  ID")
 		return
 	}
 
 	var tv tv
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&tv); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
+		respondWithError(w, http.StatusBadRequest, "Неправильный формать JSON")
 		return
 	}
 	defer r.Body.Close()
@@ -123,9 +134,15 @@ func (a *App) EditTv(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) DeleteTv(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	err := TvIdChecker(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "ID должен быть больше нуля и быть числом")
+		return
+	}
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+		respondWithError(w, http.StatusBadRequest, "Неправильный  ID")
 		return
 	}
 
@@ -163,5 +180,21 @@ func TvIdChecker(input_id string) error {
 	} else {
 		return err
 	}
+
+}
+
+func TvChecker(tv tv) error {
+	if len(tv.Manufacturer) < 3 {
+		return fmt.Errorf("В поле Manufacturer должно быть 3 и более символов")
+	}
+
+	if len(tv.Model) < 2 {
+		return fmt.Errorf("В поле Manufacturer должно быть 2 и более символов")
+	}
+
+	if tv.Year < 2010 {
+		return fmt.Errorf("год должен быть больше 2010")
+	}
+	return nil
 
 }
